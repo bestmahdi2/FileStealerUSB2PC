@@ -1,7 +1,9 @@
 from win32file import GetDriveType , GetLogicalDrives , DRIVE_REMOVABLE
 from os import chdir , listdir , path
 from shutil import copytree , copyfile
+# from progress.bar import  Bar
 from progressbar import *
+# import time
 
 class Mains:
     def Reader(self):
@@ -131,24 +133,3 @@ M.Reader()
 M.usbdrive()
 M.copier()
 M.final()
-
-
-
-# from tqdm import tqdm
-# bar = Bar(maxval=len(pwd))
-# bar = tqdm(total=len(pwd))
-
-
-# os.chdir(drive[0])
-# print(os.listdir('.'))
-
-#
-# # import usb
-# # busses = usb.busses()
-# # for bus in busses:
-# #     devices = bus.devices
-# #     for dev in devices:
-# #         print("Device : " , dev.filename)
-#
-# # for dev in usb.core.find(find_all=True):
-# #     print("Device : ", dev.filename)
