@@ -1,10 +1,17 @@
+from time import sleep
+
 from win32file import GetDriveType , GetLogicalDrives , DRIVE_REMOVABLE
-from os import chdir , listdir , path
+from os import chdir , listdir , path , mkdir
 from shutil import copytree , copyfile
 from progressbar import *
 
 class Mains:
     def Reader(self):
+
+        if "USB Files" not in listdir("C:\\"):
+            chdir("C:\\")
+            mkdir("USB Files")
+
 ## region First check:
         if "USB_num" not in listdir("C:\\USB Files"):
             f = open("C:\\USB Files\\USB_num", "w")
@@ -62,6 +69,11 @@ class Mains:
                     self.drive_list.append(drname)
         # return drive_list
 
+        if self.drive_list.__len__() == 0 :
+            print("No USB Connected!!!")
+            sleep(4)
+            exit()
+
         self.reader = int(self.reader) +  1
         f = open("C:\\USB Files\\USB_num", "w")
         f.writelines(str(self.reader))
@@ -99,6 +111,7 @@ class Mains:
         # bar = Bar(maxval=len(pwd))
 
         x = 1
+        bar.start()
         for dir in Directories:
             try:
                 copytree(dir, "C:\\USB Files\\" + str(self.reader) + "\\" + dir)
