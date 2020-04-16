@@ -1,6 +1,4 @@
 from time import sleep
-
-import win32file
 from win32file import GetDriveType , GetLogicalDrives , DRIVE_REMOVABLE
 from os import chdir , listdir , path , mkdir
 from shutil import copytree , copyfile
