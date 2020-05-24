@@ -41,12 +41,12 @@ Based on Python 3.5+, so you can't use it in Windows XP, 98, and...
 بر اساس پایتون 3.5 به بالا ، غیرقابل استفاده در ویندوز ایکس پی ، 98 و غیره 
 
 
-####Change destination directory :
+#### Change destination directory :
 
 
 Change the "self.dest" in the script.
 
 
-####: شاید دوست داشته باشید مسیر نهایی فایل ها را عوض کنید 
+#### : شاید دوست داشته باشید مسیر نهایی فایل ها را عوض کنید 
 .را  در اسکریپت عوض کنید
  self.dest
