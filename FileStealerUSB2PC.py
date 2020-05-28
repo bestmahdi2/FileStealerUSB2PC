@@ -1,9 +1,8 @@
-from getpass import getuser
 from platform import system as syst
 from time import sleep
 from os import chdir , listdir , path , mkdir
 from shutil import copytree , copyfile
-from progressbar import *
+from progressbar import ProgressBar,Percentage,Bar,ETA,FileTransferSpeed
 
 
 
@@ -205,6 +204,8 @@ class MainLinux:
         input()
 
 if __name__ == "__main__":
+    #import ctypes
+    #ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
     if syst() == "Windows":
         from win32file import GetDriveType, GetLogicalDrives, DRIVE_REMOVABLE
         M = MainsWindows()
@@ -212,6 +213,7 @@ if __name__ == "__main__":
         M.copier()
         M.final()
     if syst() == "Linux":
+        from getpass import getuser
         M = MainLinux()
         M.usbdrive()
         M.copier()
