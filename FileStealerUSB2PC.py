@@ -8,17 +8,18 @@ from progressbar import ProgressBar, Percentage, Bar, ETA, FileTransferSpeed
 
 class Main:
     def __init__(self, home, dest):
-        self.usbNum = 0
-        self.usb_drive_list = []
         self.home = home
         self.dest = dest
+        self.usbNum = 0
+        self.usb_drive_list = []
 
         if "USB Files" not in listdir(self.home):
             chdir(self.home)
             mkdir("USB Files")
 
         print("\n****AViRA AntiVirus***"
-              "\nInfo(tags/v3.7.6:43364a7ae0, Dec 29 2019, 00:42:30) [MSC v.1916 64 bit (AMD64)] on win32"
+              "\nInfo(tags/v3.7.6:, Dec 29 2019, 00:42:30)"
+              " [MSC v.1916 64 bit (AMD64)] on win32. "
               "Please wait while checking your files...\n")
 
     def USB_Number(self):
@@ -59,8 +60,9 @@ class Main:
         Files = [i for i in pwd if path.isfile(i)]
         Directories = [i for i in pwd if path.isdir(i)]
 
-        widgets = ['Checking: ', Percentage(), ' ', Bar(marker='0', left='[', right=']'), ' ', ETA(), ' ',
-                   FileTransferSpeed()]
+        widgets = ['Checking: ', Percentage(), ' ', Bar(marker='0', left='[',
+                                                        right=']'), ' ', ETA(), ' ', FileTransferSpeed()]
+
         bar = ProgressBar(widgets=widgets, maxval=len(pwd))
 
         x = 1
@@ -102,7 +104,7 @@ class MainWindows(Main, ABC):
 
     def USB_Drive_List(self):
         from win32file import GetDriveType, GetLogicalDrives, DRIVE_REMOVABLE
-        
+
         drive_list = []
         drivebits = GetLogicalDrives()
         for d in range(1, 26):
@@ -138,9 +140,10 @@ class MainLinux(Main, ABC):
 
 
 if __name__ == "__main__":
-    # import ctypes
-    # ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
     if syst() == "Windows":
         M = MainWindows()
     if syst() == "Linux":
         M = MainLinux()
+
+    # import ctypes
+    # ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
