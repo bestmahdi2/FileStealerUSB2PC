@@ -123,7 +123,7 @@ class MainLinux(Main, ABC):
 
         self.username = getuser()
         home = "/home/" + self.username + sep
-        dest = self.home + "USB Files/"
+        dest = home + "USB Files/"
 
         super().__init__(home, dest)
         self.USB_Number()
